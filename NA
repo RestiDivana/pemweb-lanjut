@@ -1,0 +1,60 @@
+<?php
+
+namespace App\Controllers;
+
+use CodeIgniter\Controller;
+
+class KonversiNilaiController extends Controller
+{
+    public function index()
+    {
+        return view('konversi_nilai');
+    }
+
+    public function hitung()
+    {
+        // Validasi input
+        $rules = [
+            'partisipasi' => 'required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'tugas' => 'required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'uts' => 'required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]',
+            'uas' => 'required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Ambil nilai dari form
+        $partisipasi = $this->request->getVar('partisipasi');
+        $tugas = $this->request->getVar('tugas');
+        $uts = $this->request->getVar('uts');
+        $uas = $this->request->getVar('uas');
+
+        // Hitung nilai akhir
+        $na = ($partisipasi + $tugas + $uts + $uas) / 4;
+
+        // Konversi nilai ke huruf
+        if ($na >= 85) {
+            $nh = 'A';
+        } elseif ($na >= 80) {
+            $nh = 'A-';
+        } elseif ($na >= 75) {
+            $nh = 'B+';
+        } elseif ($na >= 70) {
+            $nh = 'B';
+        } elseif ($na >= 65) {
+            $nh = 'B-';
+        } elseif ($na >= 60) {
+            $nh = 'C+';
+        } elseif ($na >= 55) {
+            $nh = 'C';
+        } elseif ($na >= 40) {
+            $nh = 'D';
+        } else {
+            $nh = 'E';
+        }
+
+        // Tampilkan hasil
+        return view('hasil_konversi', ['na' => $na, 'nh' => $nh]);
+    }
